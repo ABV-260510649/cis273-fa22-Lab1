@@ -14,9 +14,7 @@ namespace Polynomial
 
 		public override string ToString()
 		{
-
-          return $"{Coefficient}x^{Power}";
-
+			return $"{Coefficient}x^{Power}";
 		}
 
 	}

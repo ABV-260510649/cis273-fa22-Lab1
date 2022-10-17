@@ -18,7 +18,7 @@ namespace Polynomial
 				{
 					return 0;
 				}
-				return sortByPower();				
+				return highestPower();				
 			} 
 		}
 
@@ -30,50 +30,55 @@ namespace Polynomial
 
         public void AddTerm(double coeff, int power)
 		{
-				if (coeff > 0)
-				{
-					Term termToAdd = new Term(power, coeff);
-					terms.AddLast(termToAdd);
-				}
+			Term termToAdd = new Term(power, coeff);
+			terms.AddLast(termToAdd);
 
-                var currentNode = terms.First;
-                while (currentNode != terms.Last)
-                {
-                    if (currentNode.Value.Power == terms.Last.Value.Power)
-                    {
+            var currentNode = terms.First;
+			while (currentNode != terms.Last)
+			{
+				if (currentNode.Value.Power == terms.Last.Value.Power)
+				{
+					if (currentNode.Value.Coefficient > 0)
+					{
                         currentNode.Value.Coefficient += terms.Last.Value.Coefficient;
+                        terms.Remove(terms.Last);
+                        return;
+                    }
+
+					else if (currentNode.Value.Coefficient < 0)
+					{
+                        currentNode.Value.Coefficient -= terms.Last.Value.Coefficient;
                         terms.Remove(terms.Last);
 						return;
                     }
-                    currentNode = currentNode.Next;
-                }
+				}
+                currentNode = currentNode.Next;
+            }
 
         }
 
 		public override string ToString()
 		{
-			string result = "";
+            sortByPower();
+
+            string result = "";
 			var currentNode = terms.First;
 			while (currentNode != null)
 			{
-				if (currentNode.Value.Coefficient > 0)
-				{
-                    result += currentNode.Value.ToString();
-					if (currentNode.Next != null && currentNode.Next.Value.Coefficient > 0)
-					{
-						result += "+";
-					}
-					else if (currentNode.Next != null && currentNode.Next.Value.Coefficient < 0)
-					{
-						result += "-";
-					}
+                result += currentNode.Value.ToString();
+				if (currentNode.Next != null)
+                {
+					result += "+";
                 }
+
 				currentNode = currentNode.Next;
 			}
-			if (terms.Count == 0)
+
+            if (terms.Count == 0)
 			{
 				return "0";
 			}
+
 			else
 			{
 				return result;
@@ -88,17 +93,17 @@ namespace Polynomial
 				p1.AddTerm(currentNode.Value.Coefficient, currentNode.Value.Power);
 				currentNode = currentNode.Next;
 			}
-			return p1;
+			if (p1.terms.Count > 0)
+			{
+                searchForZeroes(p1);
+            }
+            return p1;
 		}
 		public static Polynomial Subtract(Polynomial p1, Polynomial p2)
 		{
-            var currentNode = p2.terms.First;
-            while (currentNode != null)
-            {
-                currentNode.Value.Coefficient *= -1;
-                currentNode = currentNode.Next;
-            }
-            return Add(p1, Negate(p2));
+            Add(p1, Negate(p2));
+
+			return p1;
         }
 		public static Polynomial Negate(Polynomial p)
 		{
@@ -106,9 +111,10 @@ namespace Polynomial
 			while (currentNode != null)
 			{
 				currentNode.Value.Coefficient *= -1;
-				currentNode = currentNode.Next;
-			}
-			return p;
+                currentNode = currentNode.Next;
+            }
+
+            return p;
         }
 		public static Polynomial Multiply(Polynomial p1, Polynomial p2)
         {
@@ -131,7 +137,7 @@ namespace Polynomial
 			return new Polynomial();
         }
 
-		private int sortByPower()
+		private int highestPower()
 		{
 			int highestPower = 0;
 			foreach (Term term in terms)
@@ -143,6 +149,43 @@ namespace Polynomial
 			}
 			return highestPower;
 		}
+
+        private void sortByPower()
+        {
+            int highestPower = 0;
+            var currentNode = terms.First;
+            while (currentNode != null)
+            {
+				if (currentNode.Value.Power > highestPower)
+                {
+					terms.Remove(currentNode);
+                    terms.AddFirst(currentNode);
+                }
+                highestPower = currentNode.Value.Power;
+                currentNode = currentNode.Next;
+            }
+
+            return;
+        }
+
+		private static void searchForZeroes(Polynomial p)
+		{
+            var currentNode = p.terms.First;
+            while (currentNode != null)
+            {
+                if (currentNode.Value.Coefficient == 0)
+                {
+                    p.terms.Remove(currentNode);
+                }
+                currentNode = currentNode.Next;
+            }
+
+            if (p.terms.Last.Value.Coefficient == 0)
+            {
+                p.terms.Remove(p.terms.Last);
+            }
+        }
+
     }
 }
 

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Security;
-using System.Security.Cryptography;
 
 namespace Polynomial
 {
@@ -21,6 +19,10 @@ namespace Polynomial
 
         public void AddTerm(double coeff, int power)
 		{
+            if (coeff == 0)
+            {
+                return;
+            }
             var currentNode = terms.First;
             while (currentNode != null)
             {

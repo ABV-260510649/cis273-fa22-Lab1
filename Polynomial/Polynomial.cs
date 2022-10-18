@@ -52,33 +52,24 @@ namespace Polynomial
 
 		public override string ToString()
 		{
-
-            if (terms.Count == 0)
-            {
-                return "0";
-            }
-			else
-			{
+			
                 sortByPower();
                 string result = "";
                 var currentNode = terms.First;
+                if (currentNode == null)
+                {
+                    return "0";
+                }
                 while (currentNode != null)
                 {
-                    if (currentNode.Value.Coefficient == 0)
-                    {
-                        terms.Remove(currentNode);
-                    }
-
                     result += currentNode.Value.ToString();
                     if (currentNode.Next != null)
                     {
                         result += "+";
                     }
-
                     currentNode = currentNode.Next;
                 }
-                return result;
-            }
+                return result;         
         }
 
         public static Polynomial Add(Polynomial p1, Polynomial p2)
@@ -128,12 +119,12 @@ namespace Polynomial
         }
 
 		// Bonus
+        // This only works if the divisor is a binomial and there are no missing terms
 		public static Polynomial Divide(Polynomial p1, Polynomial p2)
 		{
             var currentNode = p2.terms.First;
             var divisor = p1.terms.First;
             Polynomial result = new Polynomial();
-            int subTracter = p1.terms.Count;
              while (currentNode != null)
             { 
                 double coeff = currentNode.Value.Coefficient / divisor.Value.Coefficient;
@@ -143,7 +134,6 @@ namespace Polynomial
                 result.AddTerm(numberToDivideBy.Coefficient, numberToDivideBy.Power);
                 Polynomial multiply = Polynomial.Multiply(result, p1);
                 Polynomial.Subtract(p2, multiply);
-                // Console.WriteLine($"current {currentNode.Value.ToString()}");
                 if (currentNode.Value.Power == 0)
                 {
                     return result;

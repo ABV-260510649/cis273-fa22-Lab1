@@ -30,59 +30,55 @@ namespace Polynomial
 
         public void AddTerm(double coeff, int power)
 		{
-			Term termToAdd = new Term(power, coeff);
-			terms.AddLast(termToAdd);
-
-            var currentNode = terms.First;
-			while (currentNode != terms.Last)
+			if (coeff != 0)
 			{
-				if (currentNode.Value.Power == terms.Last.Value.Power)
-				{
-					if (currentNode.Value.Coefficient > 0)
-					{
+                Term termToAdd = new Term(power, coeff);
+                terms.AddLast(termToAdd);
+
+                var currentNode = terms.First;
+                while (currentNode != terms.Last)
+                {
+                    if (currentNode.Value.Power == terms.Last.Value.Power)
+                    {
                         currentNode.Value.Coefficient += terms.Last.Value.Coefficient;
                         terms.Remove(terms.Last);
                         return;
                     }
-
-					else if (currentNode.Value.Coefficient < 0)
-					{
-                        currentNode.Value.Coefficient -= terms.Last.Value.Coefficient;
-                        terms.Remove(terms.Last);
-						return;
-                    }
-				}
-                currentNode = currentNode.Next;
+                    currentNode = currentNode.Next;
+                }
             }
 
         }
 
 		public override string ToString()
 		{
-            sortByPower();
-
-            string result = "";
-			var currentNode = terms.First;
-			while (currentNode != null)
-			{
-                result += currentNode.Value.ToString();
-				if (currentNode.Next != null)
-                {
-					result += "+";
-                }
-
-				currentNode = currentNode.Next;
-			}
 
             if (terms.Count == 0)
-			{
-				return "0";
-			}
-
+            {
+                return "0";
+            }
 			else
 			{
-				return result;
-			}
+                sortByPower();
+                string result = "";
+                var currentNode = terms.First;
+                while (currentNode != null)
+                {
+                    if (currentNode.Value.Coefficient == 0)
+                    {
+                        terms.Remove(currentNode);
+                    }
+
+                    result += currentNode.Value.ToString();
+                    if (currentNode.Next != null)
+                    {
+                        result += "+";
+                    }
+
+                    currentNode = currentNode.Next;
+                }
+                return result;
+            }
         }
 
         public static Polynomial Add(Polynomial p1, Polynomial p2)
@@ -134,7 +130,27 @@ namespace Polynomial
 		// Bonus
 		public static Polynomial Divide(Polynomial p1, Polynomial p2)
 		{
-			return new Polynomial();
+            var currentNode = p2.terms.First;
+            var divisor = p1.terms.First;
+            Polynomial result = new Polynomial();
+            int subTracter = p1.terms.Count;
+             while (currentNode != null)
+            { 
+                double coeff = currentNode.Value.Coefficient / divisor.Value.Coefficient;
+                int pow = currentNode.Value.Power - divisor.Value.Power;
+                currentNode = currentNode.Next;
+                Term numberToDivideBy = new Term(pow, coeff);
+                result.AddTerm(numberToDivideBy.Coefficient, numberToDivideBy.Power);
+                Polynomial multiply = Polynomial.Multiply(result, p1);
+                Polynomial.Subtract(p2, multiply);
+                // Console.WriteLine($"current {currentNode.Value.ToString()}");
+                if (currentNode.Value.Power == 0)
+                {
+                    return result;
+                }
+
+            }
+            return result;
         }
 
 		private int highestPower()
